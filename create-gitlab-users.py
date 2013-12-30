@@ -71,7 +71,7 @@ for row in c:
     # GitLab will not include the password in the notification email.
     # GitLab will send a confirmation email that will log the user into their account
     #   but it does not force them to change their password! You should remind them to do so!
-    password = row[2] + row[3]          # username + student_id
+    password = row[2] + row[3].zfill(7) # username + student_id (7 digits)
 
     # Create the account  
     success = git.createuser(name, username, password, email)
