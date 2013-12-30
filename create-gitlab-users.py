@@ -60,7 +60,7 @@ f.readline() # throw away header line
 
 c = csv.reader(f)
 # CSV file stores user information as follows:
-# last name, first name, username, other stuff I ignore...
+# last name, first name, username, student_id, other stuff I ignore...
 
 for row in c:
 
@@ -68,11 +68,10 @@ for row in c:
     username = row[2]
     email = row[2] + EMAIL_DOMAIN       # create email address
     
-    # Password doesn't matter because GitLab will not include it in notification email,
-    # but will require you to set it anyway...
-    # I am just telling students to use the "Forgot password" link when they get the email.
-    # If this is ever fixed, I'll have to generate a random password...
-    password = 'A123456789'
+    # GitLab will not include the password in the notification email.
+    # GitLab will send a confirmation email that will log the user into their account
+    #   but it does not force them to change their password! You should remind them to do so!
+    password = row[2] + row[3]          # username + student_id
 
     # Create the account  
     success = git.createuser(name, username, password, email)
@@ -80,5 +79,5 @@ for row in c:
     if not success:
         sys.stderr.write('Failed to create acccount for: '+name+ ', '+username+', '+email+'\n') 
     elif args.verbose:
-        sys.stderr.write('Created account for: '+name+', '+username+', '+email+'\n')
+        sys.stderr.write('Created account for: '+name+', '+username+', '+email+', '+password+'\n')
         
