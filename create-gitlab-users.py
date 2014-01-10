@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2013 Karl R. Wurst
+# Copyright (C) 2013-2014 Karl R. Wurst
 # 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +29,13 @@
 #
 # where filename is the path/name of the CSV file
 #
-# Requires pyapi-gitlab https://github.com/Itxaka/pyapi-gitlab
+# Requires pyapi-gitlab https://github.com/Itxaka/pyapi-gitlab version 6.2
+#   Version 6.2 (as installed by pip) has some errors - not updated for Python 3
+#      /Library/Frameworks/Python.framework/Versions/3.3/lib/python3.3/site-packages/__init__.py
+#         Lines 994, 995 are missing parentheses for print
+#      /Library/Frameworks/Python.framework/Versions/3.3/lib/python3.3/site-packages/tests/pyapi-gitlab_test.py
+#         Line 162 is missing parentheses for print
+# 
 # Reads your private GitLab API token from the file gitlabtoken.txt
 
 import argparse
@@ -39,6 +45,8 @@ import gitlab   # Requires pyapi-gitlab https://github.com/Itxaka/pyapi-gitlab
 
 GITLAB_URL = 'https://git.cs.worcester.edu'     # replace with yours
 EMAIL_DOMAIN = '@worcester.edu'                 # replace with yours
+GROUP_ID = 10                                   # group number of the class group
+ACCESS_LEVEL = 'developer'                      # group access level
 
 # Set up to parse arguments
 parser = argparse.ArgumentParser()
@@ -80,4 +88,7 @@ for row in c:
         sys.stderr.write('Failed to create acccount for: '+name+ ', '+username+', '+email+'\n') 
     elif args.verbose:
         sys.stderr.write('Created account for: '+name+', '+username+', '+email+', '+password+'\n')
-        
+
+    # Add the newly created acount to the class group at the appropriate access level
+    if success:
+        git.addgroupmember(GROUP_ID, success['id'], ACCESS_LEVEL)
