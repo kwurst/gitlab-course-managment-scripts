@@ -46,7 +46,7 @@ import gitlab   # Requires pyapi-gitlab https://github.com/Itxaka/pyapi-gitlab
 GITLAB_URL = 'https://git.cs.worcester.edu'     # replace with yours
 EMAIL_DOMAIN = '@worcester.edu'                 # replace with yours
 GROUP_ID = 10                           # group number of the class group
-ACCESS_LEVEL = 'developer'              # group access level
+ACCESS_LEVEL = 'reporter'               # group access level
 
 # Set up to parse arguments
 parser = argparse.ArgumentParser()
