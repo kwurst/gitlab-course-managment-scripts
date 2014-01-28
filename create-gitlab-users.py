@@ -21,7 +21,7 @@
 # To get the class list:
 #   From within Blackboard, go to Grade Center:Full Grade Center
 #   From Work Offline, choose Download
-#   Choose Comma delimiter, and click Submit
+#   Choose "Delimiter Type: Comma" and "Include Hidden Information: Yes", and click Submit
 #   Download the file.
 #
 # Call as:
@@ -31,7 +31,7 @@
 #
 # Requires pyapi-gitlab https://github.com/Itxaka/pyapi-gitlab version 6.2
 #   Version 6.2 (as installed by pip) has some errors - not updated for Python 3
-#      /Library/Frameworks/Python.framework/Versions/3.3/lib/python3.3/site-packages/__init__.py
+#      /Library/Frameworks/Python.framework/Versions/3.3/lib/python3.3/site-packages/gitlab/__init__.py
 #         Lines 994, 995 are missing parentheses for print
 #      /Library/Frameworks/Python.framework/Versions/3.3/lib/python3.3/site-packages/tests/pyapi-gitlab_test.py
 #         Line 162 is missing parentheses for print
@@ -81,7 +81,7 @@ for row in c:
     #   but it does not force them to change their password! You should remind them to do so!
     password = row[2] + row[3].zfill(7) # username + student_id (7 digits)
 
-    # Create the account  
+    # Create the account
     success = git.createuser(name, username, password, email)
 
     if not success:

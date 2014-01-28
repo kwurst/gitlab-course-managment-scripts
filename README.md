@@ -7,7 +7,7 @@ To create the class list:
 
 1. From within Blackboard, go to Grade Center:Full Grade Center
 2. From Work Offline, choose Download
-3. Choose Comma delimiter, and click Submit
+3. Choose "Delimiter Type: Comma" and "Include Hidden Information: Yes", and click Submit
 4. Download the file.
 
 Call as:
