@@ -10,12 +10,14 @@ Python scripts to manage students and projects in GitLab
 **Create GitLab user accounts from a Blackboard class list**
 
 You must edit the script to include:
+
 * the URL to your GitLab server
 * your email domain
 * the GitLab id for the group created for the class
 * the access level for the students (if you want to change it to something other than ‘reporter’)
 
 To create the class list:
+
 1. From within Blackboard, go to Grade Center:Full Grade Center
 2. From Work Offline, choose Download
 3. Choose "Delimiter Type: Comma" and "Include Hidden Information: Yes", and click Submit
