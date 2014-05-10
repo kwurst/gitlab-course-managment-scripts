@@ -6,8 +6,8 @@ Python scripts to manage students and projects in GitLab
 * Requires pyapi-gitlab from https://github.com/Itxaka/pyapi-gitlab
 * Reads your private GitLab API token from the file gitlabtoken.txt
 
-# create-gitlab-users
-## Create GitLab user accounts from a Blackboard class list
+## create-gitlab-users
+**Create GitLab user accounts from a Blackboard class list**
 
 You must edit the script to include:
 * the URL to your GitLab server
@@ -23,18 +23,22 @@ To create the class list:
 
 Call as:
 
-python create-gitlab-users.py #filename#
+python create-gitlab-users.py *filename*
 
-where #filename# is the path/name of the CSV file
+where 
 
-# remove-user-from-gitlab-projects
-## Remove the instructor from all GitLab projects forked from a specify group - in this case a course/semester group
+*filename* is the path/name of the CSV file
+
+## remove-user-from-gitlab-projects
+**Remove the instructor from all GitLab projects forked from a specify group - in this case a course/semester group**
 
 Call as:
 
-python remove-user-from-gitlab-projects.py #group-name# #user#
+python remove-user-from-gitlab-projects.py *group-name* *user*
 
 where
-#group-name# is the name of the GitLab group e.g. cs-140-01-02-spring-2014
-#user# is the GitLab username of the user to be removed
+
+*group-name* is the name of the GitLab group e.g. cs-140-01-02-spring-2014
+
+*user* is the GitLab username of the user to be removed
 
