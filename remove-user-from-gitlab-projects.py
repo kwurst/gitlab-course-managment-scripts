@@ -21,16 +21,17 @@
 #
 #
 # Call as:
-#   python remove-from-gitlab-projects.py group-name user
+#   python remove-from-gitlab-projects.py group user
 #
 # where
-#    group-name is the name of the GitLab group e.g. cs-140-01-02-spring-2014
+#    group is the name of the GitLab group e.g. cs-140-01-02-spring-2014
 #    user is the GitLab username of the user to be removed
 #
 # Requires pyapi-gitlab https://github.com/Itxaka/pyapi-gitlab version 6.2
 #   Version 6.2 (as installed by pip) has some errors - not updated for Python 3
 #      /Library/Frameworks/Python.framework/Versions/3.3/lib/python3.3/site-packages/gitlab/__init__.py
 #         Lines 994, 995 are missing parentheses for print
+#         Line 518 needs 'verify=self.verify_ssl' in request
 #      /Library/Frameworks/Python.framework/Versions/3.3/lib/python3.3/site-packages/tests/pyapi-gitlab_test.py
 #         Line 162 is missing parentheses for print
 # 
@@ -43,7 +44,7 @@ GITLAB_URL = 'https://git.cs.worcester.edu'     # replace with yours
 
 # Set up to parse arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('group-name', help='Name of the group')
+parser.add_argument('group', help='Name of the group')
 parser.add_argument('user', help='User to remove')
 parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')
 args = parser.parse_args()
@@ -78,10 +79,10 @@ for project in projects:
     # Filter them to get only projects which were forked from the group and not owned by user
     # (path_with_namespace includes group and project name e.g cs-140-01-02-spring-2014/lab1
     # so we only get correct semester projects)
-    if 'forked_from_project' in project and \   # needs to have been forked from group
-       project['forked_from_project']['path_with_namespace'].startswith(args.group-name) and \
-       project['owner']['id'] != userid:        # not owned by user to be removed
-        
+    if ('forked_from_project' in project and    # needs to have been forked from group
+       project['forked_from_project']['path_with_namespace'].startswith(args.group) and 
+       project['owner']['id'] != userid):        # not owned by user to be removed
+        print('Removing from: ', project['name_with_namespace'])
         git.deleteprojectmember(project['id'], userid)
 
 
