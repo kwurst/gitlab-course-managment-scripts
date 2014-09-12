@@ -29,13 +29,8 @@
 #
 # where filename is the path/name of the CSV file
 #
-# Requires pyapi-gitlab https://github.com/Itxaka/pyapi-gitlab version 6.2
-#   Version 6.2 (as installed by pip) has some errors - not updated for Python 3
-#      /Library/Frameworks/Python.framework/Versions/3.3/lib/python3.3/site-packages/gitlab/__init__.py
-#         Lines 994, 995 are missing parentheses for print
-#      /Library/Frameworks/Python.framework/Versions/3.3/lib/python3.3/site-packages/tests/pyapi-gitlab_test.py
-#         Line 162 is missing parentheses for print
-# 
+# Requires pyapi-gitlab https://github.com/Itxaka/pyapi-gitlab version 6.2.3
+#
 # Reads your private GitLab API token from the file gitlabtoken.txt
 
 import argparse
@@ -51,7 +46,6 @@ ACCESS_LEVEL = 'reporter'               # group access level
 # Set up to parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('filename', help='Blackboard CSV filename with user information')
-parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')
 args = parser.parse_args()
 
 # Get my private GitLab token
