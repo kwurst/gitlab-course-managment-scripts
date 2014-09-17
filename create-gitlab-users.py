@@ -26,9 +26,11 @@
 #   Download the file.
 #
 # Call as:
-#   python create-gitlab-users.py filename
+#   python create-gitlab-users.py filename groupname
 #
-# where filename is the path/name of the CSV file
+# where
+#   filename is the path/name of the CSV file
+#   groupname is the path for the group e.g. cs-140-01-02-spring-2014
 #
 # Requires pyapi-gitlab https://github.com/Itxaka/pyapi-gitlab version 6.2.3
 #
@@ -44,19 +46,24 @@ with open('config.json') as json_data:
     config = json.load(json_data)
     json_data.close()
 
-GROUP_ID = 10                           # group number of the class group
 ACCESS_LEVEL = 'reporter'               # group access level
 
 # Set up to parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('filename',
                     help='Blackboard CSV filename with user information')
+parser.add_argument('groupname',
+                    help='GitLab path for group e.g. cs-140-01-02-spring-2014')
 args = parser.parse_args()
 
 # Create a GitLab object
 git = gitlab.Gitlab(config['gitlab_url'],
                     config['gitlab_token'],
                     verify_ssl=config['verify_ssl'])
+# Get id of group
+for group in git.getgroups():
+    if group['path'] == args.groupname:
+        groupid = group['id']
 
 # Needs utf-8 to handle the strange character Bb puts at beginning of file
 f = open(args.filename, encoding='utf-8')
@@ -70,7 +77,7 @@ for row in c:
 
     name = row[1] + ' ' + row[0]        # rebuild full name
     username = row[2]
-    email = row[2] + EMAIL_DOMAIN       # create email address
+    email = row[2] + config['email_domain']       # create email address
 
     # GitLab will not include the password in the notification email.
     # GitLab will send confirmation email that will log user into their account
@@ -91,4 +98,4 @@ for row in c:
     # Add the newly created account to the class group
     #   at the appropriate access level
     if success:
-        git.addgroupmember(GROUP_ID, success['id'], ACCESS_LEVEL)
+        git.addgroupmember(groupid, success['id'], ACCESS_LEVEL)
