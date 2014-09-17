@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # Copyright (C) 2013-2014 Karl R. Wurst
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
@@ -21,7 +21,8 @@
 # To get the class list:
 #   From within Blackboard, go to Grade Center:Full Grade Center
 #   From Work Offline, choose Download
-#   Choose "Delimiter Type: Comma" and "Include Hidden Information: Yes", and click Submit
+#   Choose "Delimiter Type: Comma" and "Include Hidden Information: Yes",
+#     and click Submit
 #   Download the file.
 #
 # Call as:
@@ -48,15 +49,18 @@ ACCESS_LEVEL = 'reporter'               # group access level
 
 # Set up to parse arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('filename', help='Blackboard CSV filename with user information')
+parser.add_argument('filename',
+                    help='Blackboard CSV filename with user information')
 args = parser.parse_args()
 
 # Create a GitLab object
-git = gitlab.Gitlab(config['gitlab_url'], config['gitlab_token'], verify_ssl=config['verify_ssl'])
+git = gitlab.Gitlab(config['gitlab_url'],
+                    config['gitlab_token'],
+                    verify_ssl=config['verify_ssl'])
 
-# Needs utf-8 to handle the strange character Bb puts at the beginning of the file
+# Needs utf-8 to handle the strange character Bb puts at beginning of file
 f = open(args.filename, encoding='utf-8')
-f.readline() # throw away header line
+f.readline()  # throw away header line
 
 c = csv.reader(f)
 # CSV file stores user information as follows:
@@ -67,20 +71,24 @@ for row in c:
     name = row[1] + ' ' + row[0]        # rebuild full name
     username = row[2]
     email = row[2] + EMAIL_DOMAIN       # create email address
-    
+
     # GitLab will not include the password in the notification email.
-    # GitLab will send a confirmation email that will log the user into their account
-    #   but it does not force them to change their password! You should remind them to do so!
-    password = row[2] + row[3].zfill(7) # username + student_id (7 digits)
+    # GitLab will send confirmation email that will log user into their account
+    #   but it does not force them to change their password!
+    #   You should remind them to do so!
+    password = row[2] + row[3].zfill(7)  # username + student_id (7 digits)
 
     # Create the account
     success = git.createuser(name, username, password, email)
 
     if not success:
-        sys.stderr.write('Failed to create acccount for: '+name+ ', '+username+', '+email+'\n') 
+        sys.stderr.write('Failed to create acccount for: ' + name + ','
+                         + username + ', ' + email + '\n')
     elif args.verbose:
-        sys.stderr.write('Created account for: '+name+', '+username+', '+email+', '+password+'\n')
+        sys.stderr.write('Created account for: ' + name + ', ' + username
+                         + ', ' + email + ', ' + password + '\n')
 
-    # Add the newly created acount to the class group at the appropriate access level
+    # Add the newly created account to the class group
+    #   at the appropriate access level
     if success:
         git.addgroupmember(GROUP_ID, success['id'], ACCESS_LEVEL)
