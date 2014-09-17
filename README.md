@@ -26,7 +26,6 @@ http://gitlab.myschool.edu/cs-100/Lab1
 * *directory* is the path to the local directory where the projects should be cloned
 
 You must edit the script to include:
-
 * the URL to your GitLab server
 
 ## create-gitlab-users
