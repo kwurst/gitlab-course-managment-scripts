@@ -47,9 +47,12 @@ import csv
 import sys
 import os
 import subprocess
+import json
 import gitlab   # Requires pyapi-gitlab https://github.com/Itxaka/pyapi-gitlab
 
-GITLAB_URL = 'https://git.cs.worcester.edu'     # replace with your server
+with open('config.json') as json_data:
+    config = json.load(json_data)
+    json_data.close()
 
 # Set up to parse arguments
 parser = argparse.ArgumentParser()
@@ -59,14 +62,8 @@ args = parser.parse_args()
 
 PIPE = subprocess.PIPE
 
-# Get my private GitLab token
-# stored in a file so that I can .gitignore the file
-token = open('gitlabtoken.txt').readline().strip()
-
 # Create a GitLab object
-# For our server, verify_ssl has to be False,
-#   since we have a self-signed certificate
-git = gitlab.Gitlab(GITLAB_URL, token, verify_ssl=False)
+git = gitlab.Gitlab(config['gitlab_url'], config['gitlab_token'], verify_ssl=config['verify_ssl'])
 
 # Change to the directory for the assignment
 os.chdir(args.directory)
@@ -97,7 +94,7 @@ for project in projects:
         # to be used as the directory to clone into
         members_dir = '-'.join([member['username']
                                 for member in git.listprojectmembers(project['id'])
-                                if member['username']!='kwurst'])
+                                if member['username']!=config['gitlab_username'])
 
         # if the directory doesn't exist, clone the repository
         if members_dir not in onlydirectories:

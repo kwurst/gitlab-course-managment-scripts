@@ -32,9 +32,12 @@
 # Reads your private GitLab API token from the file gitlabtoken.txt
 
 import argparse
+import json
 import gitlab   # Requires pyapi-gitlab https://github.com/Itxaka/pyapi-gitlab
 
-GITLAB_URL = 'https://git.cs.worcester.edu'     # replace with yours
+with open('config.json') as json_data:
+    config = json.load(json_data)
+    json_data.close()
 
 # Set up to parse arguments
 parser = argparse.ArgumentParser()
@@ -43,13 +46,8 @@ parser.add_argument('user', help='User to remove')
 parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')
 args = parser.parse_args()
 
-# Get my private GitLab token
-# stored in a file so that I can .gitignore the file
-token = open('gitlabtoken.txt').readline().strip()
-
 # Create a GitLab object
-# For our server, verify_ssl has to be False, since we have a self-signed certificate
-git = gitlab.Gitlab(GITLAB_URL, token, verify_ssl=False)
+git = gitlab.Gitlab(config['gitlab_url'], config['gitlab_token'], verify_ssl=config['verify_ssl'])
 
 # Get id of user
 for user in git.getusers():

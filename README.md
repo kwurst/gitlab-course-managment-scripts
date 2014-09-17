@@ -4,7 +4,17 @@ gitlab-course-management-scripts
 Python scripts to manage students and projects in GitLab
 
 * Requires pyapi-gitlab from https://github.com/Itxaka/pyapi-gitlab version 6.2.3
-* Reads your private GitLab API token from the file gitlabtoken.txt
+* Reads configuration from config.json
+
+##Configuration file
+Copy config.json.sample to config.json and edit for your configuration.
+
+Configuration variables:
+* gitlab_username - your GitLab username on the server
+* gitlab_url - the URL of your GitLab server
+* email_domain - the domain portion of email addresses (the @ symbol and all following characters)
+* verify_ssl - whether the SSL certificate should be verified when making a connection. Set to false if you have a self-signed certificate.
+* gitlab_token - your private GitLab token
 
 ##get-gitlab-projects
 **Gets (clones) all GitLab projects that were forked from a particular project.**
@@ -24,9 +34,6 @@ This is everything after the / after the server URL. In the examples:
 http://gitlab.myschool.edu/kwurst/Lab1
 http://gitlab.myschool.edu/cs-100/Lab1
 * *directory* is the path to the local directory where the projects should be cloned
-
-You must edit the script to include:
-* the URL to your GitLab server
 
 ## create-gitlab-users
 **Create GitLab user accounts from a Blackboard class list**

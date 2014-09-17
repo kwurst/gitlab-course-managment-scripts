@@ -36,10 +36,13 @@
 import argparse
 import csv
 import sys
+import json
 import gitlab   # Requires pyapi-gitlab https://github.com/Itxaka/pyapi-gitlab
 
-GITLAB_URL = 'https://git.cs.worcester.edu'     # replace with yours
-EMAIL_DOMAIN = '@worcester.edu'                 # replace with yours
+with open('config.json') as json_data:
+    config = json.load(json_data)
+    json_data.close()
+
 GROUP_ID = 10                           # group number of the class group
 ACCESS_LEVEL = 'reporter'               # group access level
 
@@ -48,13 +51,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('filename', help='Blackboard CSV filename with user information')
 args = parser.parse_args()
 
-# Get my private GitLab token
-# stored in a file so that I can .gitignore the file
-token = open('gitlabtoken.txt').readline().strip()
-
 # Create a GitLab object
-# For our server, verify_ssl has to be False, since we have a self-signed certificate
-git = gitlab.Gitlab(GITLAB_URL, token, verify_ssl=False)
+git = gitlab.Gitlab(config['gitlab_url'], config['gitlab_token'], verify_ssl=config['verify_ssl'])
 
 # Needs utf-8 to handle the strange character Bb puts at the beginning of the file
 f = open(args.filename, encoding='utf-8')

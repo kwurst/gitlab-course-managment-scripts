@@ -1,6 +1,6 @@
-# Private GitLab Token - not to be stored in repository #
-########################################################
-gitlabtoken.txt
+# Configuration file contails private GitLab Token - not to be stored in repository #
+#####################################################################################
+config.json
 
 # Compiled source #
 ###################
