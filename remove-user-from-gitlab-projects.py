@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2014 Karl R. Wurst
+# Copyright (C) 2014, 2018 Karl R. Wurst
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,55 +27,43 @@
 #    group is the name of the GitLab group e.g. cs-140-01-02-spring-2014
 #    user is the GitLab username of the user to be removed
 #
-# Requires pyapi-gitlab https://github.com/Itxaka/pyapi-gitlab version 6.2.3
-#
-# Reads your private GitLab API token from the file gitlabtoken.txt
+# Requires requests
+import requests
 
-import argparse
-import json
-import gitlab   # Requires pyapi-gitlab https://github.com/Itxaka/pyapi-gitlab
+# need to fill in your GitLab access token here.
+token = ''
+# your GitLab user id (from User Settings> Profile)
+userid = ''
+# groupname can be a subgroup
+groupname = ''
 
-with open('config.json') as json_data:
-    config = json.load(json_data)
-    json_data.close()
+# get the group id
+url = 'https://gitlab.com/api/v4/groups'
+payload = {'private_token': token,
+           'search': groupname}
+groupinfo = requests.get(url, params=payload)
+groupid = groupinfo.json()[0]['id']
+print(groupid)
 
-# Set up to parse arguments
-parser = argparse.ArgumentParser()
-parser.add_argument('group', help='Name of the group')
-parser.add_argument('user', help='User to remove')
-args = parser.parse_args()
+# get the group's projects
+url = 'https://gitlab.com/api/v4/groups/' + str(groupid) + '/projects?per_page=100'
+payload = {'private_token': token}
+groupprojects = requests.get(url, params=payload)
 
-# Create a GitLab object
-git = gitlab.Gitlab(config['gitlab_url'],
-                    config['gitlab_token'],
-                    verify_ssl=config['verify_ssl'])
+for project in groupprojects.json():
 
-# Get id of user
-for user in git.getusers():
-    if user['username'] == args.user:
-        userid = user['id']
+    # get the forks of the project
+    projectid = project['id']
+    print(project['name'])
+    url = 'https://gitlab.com/api/v4/projects/' + str(projectid) + '/forks?per_page=100'
+    payload = {'private_token': token}
+    forks = requests.get(url, params=payload)
 
-# Get all projects of which I am a member
-# Since GitLab returns projects in "pages" you can't get them all at once
-projects = []
-pageno = 1
-# let's get them in the largest batch allowed - 100 per page
-pageprojects = git.getprojects(page=pageno, per_page=100)
-# get pages as long as we haven't run out of projects
-while (len(pageprojects) > 0):
-    projects = projects + pageprojects
-    pageno = pageno + 1
-    pageprojects = git.getprojects(page=pageno, per_page=100)
+    for fork in forks.json():
+        print(fork['name_with_namespace'])
+        forkid = fork['id']
 
-for project in projects:
-    # Filter them to get only projects which were forked from the group
-    # and not owned by user
-    # (path_with_namespace includes group and project name
-    # e.g cs-140-01-02-spring-2014/lab1
-    # so we only get correct semester projects)
-    if ('forked_from_project' in project and  # must be forked from group
-        project['forked_from_project']['path_with_namespace'].startswith(
-            args.group) and
-            project['owner']['id'] != userid):   # not owned by user to remove
-        print('Removing from: ', project['name_with_namespace'])
-        git.deleteprojectmember(project['id'], userid)
+        # remove the user from the members of the fork
+        url = 'https://gitlab.com/api/v4/projects/' + str(forkid) + '/members/' + userid
+        payload = {'private_token': token}
+        requests.delete(url, params=payload)
