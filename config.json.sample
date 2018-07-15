@@ -1,8 +1,5 @@
 {
-    "gitlab_username": "kwurst",
-    "gitlab_url": "https://git.cs.worcester.edu",
-    "email_domain": "@worcester.edu",
-    "verify_ssl": false,
-    "gitlab_token": "xxxxxxxxxxxxxxxxxxxx"
-}
+    "gitlabUsername": "kwurst",
+    "gitlabURL": "https://gitlab.com/",
+    "gitlab_token": ""
 

@@ -19,51 +19,68 @@
 # Removes the instructor from all GitLab projects forked from a specific group
 #   - in this case a course/semester group.
 #
-#
 # Call as:
-#   python remove-from-gitlab-projects.py group user
+#   python remove-from-gitlab-projects.py groupName
 #
 # where
-#    group is the name of the GitLab group e.g. cs-140-01-02-spring-2014
-#    user is the GitLab username of the user to be removed
+#    groupName is the name of the GitLab group e.g. cs-140-01-02-spring-2014
 #
 # Requires requests
 import requests
+import argparse
+import json
 
-# need to fill in your GitLab access token here.
-token = ''
-# your GitLab user id (from User Settings> Profile)
-userid = ''
-# groupname can be a subgroup
-groupname = ''
+with open('config.json') as json_data:
+    config = json.load(json_data)
+    json_data.close()
 
-# get the group id
-url = 'https://gitlab.com/api/v4/groups'
-payload = {'private_token': token,
-           'search': groupname}
-groupinfo = requests.get(url, params=payload)
-groupid = groupinfo.json()[0]['id']
-print(groupid)
+parser = argparse.ArgumentParser()
+parser.add_argument('groupname',
+                    help='name for GitLab group e.g. cs-140-01-02-spring-2014')
+args = parser.parse_args()
 
-# get the group's projects
-url = 'https://gitlab.com/api/v4/groups/' + str(groupid) + '/projects?per_page=100'
-payload = {'private_token': token}
-groupprojects = requests.get(url, params=payload)
+baseURL = config['gitlabURL'] + 'api/v4/'
+basePayload = {'private_token': config['gitlabToken']}
 
-for project in groupprojects.json():
+def main():
+    userId = getGitlabID(config['gitlabUsername'])
+    removeUserFromGroupProjects(userId, args.groupName)
 
-    # get the forks of the project
-    projectid = project['id']
-    print(project['name'])
-    url = 'https://gitlab.com/api/v4/projects/' + str(projectid) + '/forks?per_page=100'
-    payload = {'private_token': token}
-    forks = requests.get(url, params=payload)
+def removeUserFromGroupProjects(userId, groupName):
+    groupProjects = getGroupProjects(getGroupId(groupName))
+    for project in groupProjects:
+        removeUserFromProjects(userId, getForks(project))
 
-    for fork in forks.json():
-        print(fork['name_with_namespace'])
-        forkid = fork['id']
+def removeUserFromProjects(userId, projects):
+    for project in projects.json():
+        removeUserFromProject(userId, project['id'])
 
-        # remove the user from the members of the fork
-        url = 'https://gitlab.com/api/v4/projects/' + str(forkid) + '/members/' + userid
-        payload = {'private_token': token}
-        requests.delete(url, params=payload)
+def removeUserFromProject(userId, projectId):
+    url = baseUrl + 'projects/' + str(projectId) + '/members/' + userId
+    requests.delete(url, params=basePayload)
+
+def getGroupProjects(groupId):
+    url = baseUrl + 'groups/' + str(groupId) + '/projects?per_page=100'
+    return requests.get(url, params=basePayload)
+
+def getForks(project):
+    url = baseUrl + 'projects/' + str(project['id']) + '/forks?per_page=100'
+    return requests.get(url, params=basePayload)
+
+def getGitlabID(gitlabUsername):
+    url = baseURL + 'users'
+    userInfo = requests.get(url, params=addToBasePayload('username', gitlabUsername))
+    return userInfo.json()[0]['id']
+
+def getGroupId(groupName):
+    url = baseUrl + 'groups'
+    groupInfo = requests.get(url, params=addToBasePayload('search', groupName))
+    return groupInfo.json()[0]['id']
+
+def addToBasePayload(key, value):
+    payload = basePayload.copy()
+    payload[key] = value
+    return payload
+
+if __name__== "__main__":
+  main()
