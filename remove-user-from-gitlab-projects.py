@@ -25,62 +25,27 @@
 # where
 #    groupName is the name of the GitLab group e.g. cs-140-01-02-spring-2014
 #
-# Requires requests
-import requests
-import argparse
-import json
 
-with open('config.json') as json_data:
-    config = json.load(json_data)
-    json_data.close()
+import argparse
+import gitlabapiutilities as gitlab
 
 parser = argparse.ArgumentParser()
 parser.add_argument('groupname',
                     help='name for GitLab group e.g. cs-140-01-02-spring-2014')
 args = parser.parse_args()
 
-baseURL = config['gitlabURL'] + 'api/v4/'
-basePayload = {'private_token': config['gitlabToken']}
-
 def main():
-    userId = getGitlabID(config['gitlabUsername'])
+    userId = gitlab.getUserId(gitlab.config['gitlabUsername'])
     removeUserFromGroupProjects(userId, args.groupName)
 
 def removeUserFromGroupProjects(userId, groupName):
-    groupProjects = getGroupProjects(getGroupId(groupName))
+    groupProjects = gitlab.getGroupProjects(gitlab.getGroupId(groupName))
     for project in groupProjects:
-        removeUserFromProjects(userId, getForks(project))
+        removeUserFromProjects(userId, gitlab.getForks(project['id']))
 
 def removeUserFromProjects(userId, projects):
     for project in projects.json():
-        removeUserFromProject(userId, project['id'])
-
-def removeUserFromProject(userId, projectId):
-    url = baseUrl + 'projects/' + str(projectId) + '/members/' + userId
-    requests.delete(url, params=basePayload)
-
-def getGroupProjects(groupId):
-    url = baseUrl + 'groups/' + str(groupId) + '/projects?per_page=100'
-    return requests.get(url, params=basePayload)
-
-def getForks(project):
-    url = baseUrl + 'projects/' + str(project['id']) + '/forks?per_page=100'
-    return requests.get(url, params=basePayload)
-
-def getGitlabID(gitlabUsername):
-    url = baseURL + 'users'
-    userInfo = requests.get(url, params=addToBasePayload('username', gitlabUsername))
-    return userInfo.json()[0]['id']
-
-def getGroupId(groupName):
-    url = baseUrl + 'groups'
-    groupInfo = requests.get(url, params=addToBasePayload('search', groupName))
-    return groupInfo.json()[0]['id']
-
-def addToBasePayload(key, value):
-    payload = basePayload.copy()
-    payload[key] = value
-    return payload
+        gitlab.removeUserFromProject(userId, project['id'])
 
 if __name__== "__main__":
   main()
